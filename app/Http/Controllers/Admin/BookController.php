@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\Borrowing; // <--- TAMBAHKAN BARIS INI
 use App\Http\Requests\Admin\BookStoreRequest;
 use App\Http\Requests\Admin\BookUpdateRequest;
 use Illuminate\Http\Request;
