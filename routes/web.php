@@ -44,7 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Grup Rute untuk Admin dan Petugas
+
 // Grup Rute untuk Admin dan Petugas
 Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN . ',' . \App\Models\User::ROLE_PETUGAS])
     ->prefix('admin') 

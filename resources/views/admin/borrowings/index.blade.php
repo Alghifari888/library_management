@@ -9,7 +9,6 @@
         <a href="{{ route('admin.borrowings.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
             {{ __('Catat Peminjaman Baru') }}
         </a>
-        {{-- Form Filter dan Pencarian --}}
         <form method="GET" action="{{ route('admin.borrowings.index') }}" class="flex items-center space-x-2">
             <input type="text" name="search" placeholder="Cari Anggota/Buku..." value="{{ request('search') }}" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm text-sm">
             <select name="status" class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm text-sm">
@@ -41,20 +40,26 @@
                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     @forelse ($borrowings as $index => $borrowing)
                         @php
-                            $isOverdue = !$borrowing->returned_at && $borrowing->due_at->isPast();
+                            $isCurrentlyOverdue = !$borrowing->returned_at && $borrowing->due_at->isPast() && $borrowing->status !== \App\Models\Borrowing::STATUS_RETURNED;
                             $statusClass = '';
                             $statusText = ucfirst($borrowing->status);
 
-                            if ($borrowing->status == \App\Models\Borrowing::STATUS_BORROWED && $isOverdue) {
-                                $statusClass = 'text-red-500 font-semibold'; // Class untuk status overdue yang masih dipinjam
-                                $statusText = 'Terlambat'; // Update text juga
+                            if ($borrowing->status == \App\Models\Borrowing::STATUS_BORROWED && $borrowing->due_at->isPast()) {
+                                $statusText = 'Terlambat'; // Seharusnya status sudah otomatis OVERDUE oleh sistem/scheduler
+                                $statusClass = 'text-red-500 font-semibold';
+                            } elseif ($borrowing->status == \App\Models\Borrowing::STATUS_OVERDUE && !$borrowing->returned_at) {
+                                $statusText = 'Terlambat';
+                                $statusClass = 'text-red-500 font-semibold';
                             } elseif ($borrowing->status == \App\Models\Borrowing::STATUS_RETURNED) {
+                                $statusText = 'Dikembalikan';
                                 $statusClass = 'text-green-500';
-                            } elseif ($borrowing->status == \App\Models\Borrowing::STATUS_OVERDUE && $borrowing->returned_at) {
-                                // Jika statusnya 'overdue' tapi sudah dikembalikan (misal, terlambat mengembalikan)
-                                $statusClass = 'text-yellow-600';
-                                $statusText = 'Dikembalikan Terlambat';
+                                // Cek apakah dikembalikan terlambat
+                                if ($borrowing->returned_at && $borrowing->due_at && \Carbon\Carbon::parse($borrowing->returned_at)->isAfter($borrowing->due_at) ) {
+                                     $statusText = 'Dikembalikan Terlambat';
+                                     $statusClass = 'text-yellow-600';
+                                }
                             } elseif ($borrowing->status == \App\Models\Borrowing::STATUS_BORROWED) {
+                                $statusText = 'Dipinjam';
                                 $statusClass = 'text-blue-500';
                             }
                         @endphp
@@ -62,21 +67,24 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $borrowings->firstItem() + $index }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $borrowing->user->name ?? 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ Str::limit($borrowing->book->title ?? 'N/A', 30) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->borrowed_at ? \Carbon\Carbon::parse($borrowing->borrowed_at)->isoFormat('D MMM YYYY') : 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->due_at ? \Carbon\Carbon::parse($borrowing->due_at)->isoFormat('D MMM YYYY') : 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->returned_at ? \Carbon\Carbon::parse($borrowing->returned_at)->isoFormat('D MMM YYYY') : '-' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->borrowed_at ? \Carbon\Carbon::parse($borrowing->borrowed_at)->isoFormat('D MMM YY') : 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->due_at ? \Carbon\Carbon::parse($borrowing->due_at)->isoFormat('D MMM YY') : 'N/A' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ $borrowing->returned_at ? \Carbon\Carbon::parse($borrowing->returned_at)->isoFormat('D MMM YY') : '-' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm {{ $statusClass }}">
                                 {{ $statusText }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                @if ($borrowing->status == \App\Models\Borrowing::STATUS_BORROWED || ($borrowing->status == \App\Models\Borrowing::STATUS_OVERDUE && !$borrowing->returned_at))
-                                    {{-- Tambahkan form untuk tombol "Kembalikan" di sini nanti --}}
-                                    {{-- <form action="{{ route('admin.borrowings.return', $borrowing) }}" method="POST" class="inline">
+                                {{-- BARU: Tombol untuk "Kembalikan Buku" --}}
+                                @if (in_array($borrowing->status, [\App\Models\Borrowing::STATUS_BORROWED, \App\Models\Borrowing::STATUS_OVERDUE]) && !$borrowing->returned_at)
+                                    <form action="{{ route('admin.borrowings.return', $borrowing) }}" method="POST" class="inline" onsubmit="return confirm('Anda yakin ingin menandai buku ini sebagai dikembalikan?');">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="text-green-600 hover:text-green-900">Kembalikan</button>
-                                    </form> --}}
-                                    <span class="text-xs text-gray-400">(Proses Pengembalian akan dibuat)</span>
+                                        {{-- Anda bisa menambahkan input tanggal kembali aktual di sini jika diperlukan --}}
+                                        {{-- <input type="date" name="returned_at_actual" value="{{ \Carbon\Carbon::now()->toDateString() }}" class="text-xs ..."> --}}
+                                        <button type="submit" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-200">
+                                            Kembalikan
+                                        </button>
+                                    </form>
                                 @else
                                     -
                                 @endif
@@ -92,7 +100,6 @@
                 </tbody>
             </table>
         </div>
-        {{-- Paginasi --}}
         @if ($borrowings->hasPages())
         <div class="p-6 border-t border-gray-200 dark:border-gray-700">
             {{ $borrowings->links() }}

@@ -111,4 +111,51 @@ class BorrowingController extends Controller
     }
     
     // Metode untuk returnBook dan lainnya akan ditambahkan di Part 2 modul ini
+    public function returnBook(Request $request, Borrowing $borrowing)
+    {
+        // Pastikan buku memang sedang dipinjam atau terlambat sebelum diproses pengembaliannya
+        if (!in_array($borrowing->status, [Borrowing::STATUS_BORROWED, Borrowing::STATUS_OVERDUE]) || $borrowing->returned_at) {
+            return redirect()->route('admin.borrowings.index')
+                             ->with('error', 'Buku ini tidak dalam status dipinjam atau sudah dikembalikan.');
+        }
+
+        // Tentukan tanggal kembali. Bisa dari input form jika ada, atau tanggal saat ini.
+        // Untuk sekarang, kita gunakan tanggal saat ini.
+        $returnedDate = Carbon::now();
+        // Anda bisa menambahkan input tanggal pengembalian aktual jika diperlukan:
+        // $request->validate(['returned_at_actual' => 'required|date|after_or_equal:'.$borrowing->borrowed_at->toDateString()]);
+        // $returnedDate = Carbon::parse($request->returned_at_actual);
+
+
+        $borrowing->returned_at = $returnedDate;
+        
+        // Tentukan status akhir: DIKEMBALIKAN atau DIKEMBALIKAN_TERLAMBAT (jika modul denda ada)
+        // Untuk sekarang, jika returned_at > due_at, maka status jadi OVERDUE (jika belum), lalu RETURNED.
+        // Atau cukup set RETURNED, dan logika denda akan cek ini.
+        // Jika returned_at diisi, dan > due_at, maka secara implisit terlambat.
+        
+        // Jika tanggal kembali melewati jatuh tempo, dan statusnya masih 'borrowed', ubah jadi 'overdue' dulu
+        // Ini lebih untuk pencatatan internal jika diperlukan, karena denda akan dihitung berdasarkan perbandingan tanggal.
+        if ($returnedDate->isAfter($borrowing->due_at) && $borrowing->status == Borrowing::STATUS_BORROWED) {
+            $borrowing->status = Borrowing::STATUS_OVERDUE;
+        }
+        // Kemudian, update status akhir menjadi RETURNED
+        // Atau bisa juga: jika terlambat, status = 'returned_late', jika tepat waktu 'returned_on_time'
+        // Untuk kesederhanaan sesuai ERD awal:
+        $borrowing->status = Borrowing::STATUS_RETURNED;
+        
+        $borrowing->save();
+
+        // Tambah kembali stok buku yang tersedia
+        $borrowing->book()->increment('available_quantity');
+
+        // Di sini nanti bisa ditambahkan logika untuk pembuatan denda jika terlambat
+        // if ($returnedDate->isAfter($borrowing->due_at)) {
+        //     // Buat record denda
+        //     // Fine::create([...]);
+        // }
+
+        return redirect()->route('admin.borrowings.index')
+                         ->with('success', 'Buku berhasil ditandai sebagai telah dikembalikan.');
+    }
 }
