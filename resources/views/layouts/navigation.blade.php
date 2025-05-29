@@ -18,9 +18,12 @@
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                             {{ __('Manajemen Kategori') }}
                         </x-nav-link>
-                        {{-- BARU: Link Manajemen Buku --}}
                         <x-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
                             {{ __('Manajemen Buku') }}
+                        </x-nav-link>
+                        {{-- BARU: Link Manajemen Anggota --}}
+                        <x-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">
+                            {{ __('Manajemen Anggota') }}
                         </x-nav-link>
                         {{-- Tambahkan link admin lain di sini nanti --}}
                     @endif
@@ -42,7 +45,7 @@
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                @auth {{-- Pastikan hanya user yang sudah login yang melihat ini --}}
+                @auth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
@@ -97,9 +100,12 @@
                 <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                     {{ __('Manajemen Kategori') }}
                 </x-responsive-nav-link>
-                {{-- BARU: Link Manajemen Buku (Responsive) --}}
                 <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
                     {{ __('Manajemen Buku') }}
+                </x-responsive-nav-link>
+                {{-- BARU: Link Manajemen Anggota (Responsive) --}}
+                <x-responsive-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">
+                    {{ __('Manajemen Anggota') }}
                 </x-responsive-nav-link>
             @endif
 
@@ -119,7 +125,7 @@
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
-        @auth {{-- Pastikan hanya user yang sudah login yang melihat ini --}}
+        @auth
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>

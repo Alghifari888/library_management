@@ -3,7 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
-use App\Http\Controllers\Admin\BookController as AdminBookController; // BARU: Import BookController Admin
+use App\Http\Controllers\Admin\BookController as AdminBookController;
+use App\Http\Controllers\Admin\MemberController as AdminMemberController; // BARU: Import MemberController Admin
 // Halaman Welcome
 Route::get('/', function () {
     return view('welcome');
@@ -37,11 +38,12 @@ Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN])
     ->group(function () {
         // CRUD Kategori
         Route::resource('categories', AdminCategoryController::class);
-        
-        // BARU: CRUD Buku
+        // CRUD Buku
         Route::resource('books', AdminBookController::class);
+        // BARU: CRUD Anggota (Users dengan role 'anggota')
+        Route::resource('members', AdminMemberController::class);
 
-        // Tambahkan resource lain untuk Admin di sini (Members, Borrowings, Fines)
+        // Tambahkan resource lain untuk Admin di sini (Borrowings, Fines)
 });
 
 
