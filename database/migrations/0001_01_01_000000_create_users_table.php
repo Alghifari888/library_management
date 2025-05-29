@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('anggota'); // admin, petugas, anggota
+            
+            // Kolom profil (opsional, bisa null jika bukan anggota atau belum diisi)
+            $table->string('nis_nim')->unique()->nullable();
+            $table->text('address')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
