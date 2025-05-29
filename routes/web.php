@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\BookController as AdminBookController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\BorrowingController as AdminBorrowingController;
+use App\Http\Controllers\Admin\FineController as AdminFineController; // BARU: Import FineController
 
 /*
 |--------------------------------------------------------------------------
@@ -25,17 +26,13 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $user = Auth::user();
     if ($user->hasRole(\App\Models\User::ROLE_ADMIN)) {
-        // Anda bisa mengarahkan ke dashboard admin spesifik jika ada
-        // return redirect()->route('admin.dashboard'); 
         return view('dashboard', ['userRole' => 'Admin']); 
     } elseif ($user->hasRole(\App\Models\User::ROLE_PETUGAS)) {
-        // return redirect()->route('officer.dashboard');
          return view('dashboard', ['userRole' => 'Petugas']);
     } elseif ($user->hasRole(\App\Models\User::ROLE_ANGGOTA)) {
-        // return redirect()->route('member.dashboard');
          return view('dashboard', ['userRole' => 'Anggota']);
     }
-    return view('dashboard'); // Fallback dashboard
+    return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -43,7 +40,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
 
 // Grup Rute untuk Admin dan Petugas
 Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN . ',' . \App\Models\User::ROLE_PETUGAS])
@@ -56,22 +52,15 @@ Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_ADMIN . ',' . \App\M
         Route::resource('books', AdminBookController::class)->middleware('role:' . \App\Models\User::ROLE_ADMIN);
         Route::resource('members', AdminMemberController::class)->middleware('role:' . \App\Models\User::ROLE_ADMIN);
 
-        // Untuk Admin & Petugas
+        // Untuk Admin & Petugas (Manajemen Peminjaman)
         Route::get('borrowings', [AdminBorrowingController::class, 'index'])->name('borrowings.index');
         Route::get('borrowings/create', [AdminBorrowingController::class, 'create'])->name('borrowings.create');
         Route::post('borrowings', [AdminBorrowingController::class, 'store'])->name('borrowings.store');
-        
-        // BARU: Route untuk menandai buku telah dikembalikan
         Route::patch('borrowings/{borrowing}/return', [AdminBorrowingController::class, 'returnBook'])->name('borrowings.return');
+
+        // BARU: Untuk Admin & Petugas (Manajemen Denda)
+        Route::get('fines', [AdminFineController::class, 'index'])->name('fines.index');
+        Route::patch('fines/{fine}/pay', [AdminFineController::class, 'markAsPaid'])->name('fines.pay');
 });
-
-// Anda bisa menambahkan grup route terpisah untuk Petugas jika ada halaman khusus Petugas
-// Route::middleware(['auth', 'role:' . \App\Models\User::ROLE_PETUGAS])
-//     ->prefix('officer')
-//     ->name('officer.')
-//     ->group(function () {
-//         // Route::get('/dashboard', [SomeOfficerController::class, 'dashboard'])->name('dashboard');
-//     });
-
 
 require __DIR__.'/auth.php';

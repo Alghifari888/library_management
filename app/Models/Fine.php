@@ -20,11 +20,15 @@ class Fine extends Model
 
     protected $casts = [
         'paid_at' => 'datetime',
-        'amount' => 'decimal:2',
+        'amount' => 'decimal:2', // Pastikan presisi desimal sesuai
     ];
 
+    // Konstanta untuk status denda
     public const STATUS_UNPAID = 'unpaid';
     public const STATUS_PAID = 'paid';
+
+    // BARU: Konstanta untuk tarif denda per hari
+    public const RATE_PER_DAY = 2000; 
 
     /**
      * Get the borrowing that incurred this fine.

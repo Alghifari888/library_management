@@ -27,6 +27,10 @@
                         <x-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">
                             {{ __('Manajemen Peminjaman') }}
                         </x-nav-link>
+                        {{-- BARU: Link Manajemen Denda untuk Admin --}}
+                        <x-nav-link :href="route('admin.fines.index')" :active="request()->routeIs('admin.fines.*')">
+                            {{ __('Manajemen Denda') }}
+                        </x-nav-link>
                     @endif
                     
                     {{-- Menu untuk Petugas --}}
@@ -34,7 +38,10 @@
                         <x-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">
                             {{ __('Manajemen Peminjaman') }}
                         </x-nav-link>
-                        {{-- Tambahkan link petugas lain di sini nanti --}}
+                        {{-- BARU: Link Manajemen Denda untuk Petugas --}}
+                        <x-nav-link :href="route('admin.fines.index')" :active="request()->routeIs('admin.fines.*')">
+                            {{ __('Manajemen Denda') }}
+                        </x-nav-link>
                     @endif
 
                     {{-- Menu untuk Anggota --}}
@@ -84,11 +91,15 @@
                 <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">{{ __('Manajemen Buku') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">{{ __('Manajemen Anggota') }}</x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">{{ __('Manajemen Peminjaman') }}</x-responsive-nav-link>
+                {{-- BARU: Link Manajemen Denda untuk Admin (Responsive) --}}
+                <x-responsive-nav-link :href="route('admin.fines.index')" :active="request()->routeIs('admin.fines.*')">{{ __('Manajemen Denda') }}</x-responsive-nav-link>
             @endif
 
             {{-- Menu untuk Petugas (Responsive) --}}
             @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_PETUGAS))
                 <x-responsive-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">{{ __('Manajemen Peminjaman') }}</x-responsive-nav-link>
+                 {{-- BARU: Link Manajemen Denda untuk Petugas (Responsive) --}}
+                <x-responsive-nav-link :href="route('admin.fines.index')" :active="request()->routeIs('admin.fines.*')">{{ __('Manajemen Denda') }}</x-responsive-nav-link>
             @endif
 
             {{-- Menu untuk Anggota (Responsive) --}}
