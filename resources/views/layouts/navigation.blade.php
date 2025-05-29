@@ -18,10 +18,11 @@
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                             {{ __('Manajemen Kategori') }}
                         </x-nav-link>
-                        {{-- Tambahkan link admin lain di sini nanti --}}
-                        {{-- <x-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
+                        {{-- BARU: Link Manajemen Buku --}}
+                        <x-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
                             {{ __('Manajemen Buku') }}
-                        </x-nav-link> --}}
+                        </x-nav-link>
+                        {{-- Tambahkan link admin lain di sini nanti --}}
                     @endif
                     
                     {{-- Tambahan untuk Anggota --}}
@@ -96,10 +97,10 @@
                 <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                     {{ __('Manajemen Kategori') }}
                 </x-responsive-nav-link>
-                {{-- Tambahkan link admin lain di sini nanti --}}
-                 {{-- <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
+                {{-- BARU: Link Manajemen Buku (Responsive) --}}
+                <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
                     {{ __('Manajemen Buku') }}
-                </x-responsive-nav-link> --}}
+                </x-responsive-nav-link>
             @endif
 
             {{-- Tambahan untuk Anggota (Responsive) --}}
