@@ -13,7 +13,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    {{-- Tambahan untuk Admin --}}
+                    {{-- Menu untuk Admin --}}
                     @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_ADMIN))
                         <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
                             {{ __('Manajemen Kategori') }}
@@ -21,24 +21,26 @@
                         <x-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
                             {{ __('Manajemen Buku') }}
                         </x-nav-link>
-                        {{-- BARU: Link Manajemen Anggota --}}
                         <x-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">
                             {{ __('Manajemen Anggota') }}
                         </x-nav-link>
-                        {{-- Tambahkan link admin lain di sini nanti --}}
+                        <x-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">
+                            {{ __('Manajemen Peminjaman') }}
+                        </x-nav-link>
                     @endif
                     
-                    {{-- Tambahan untuk Anggota --}}
+                    {{-- Menu untuk Petugas --}}
+                    @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_PETUGAS))
+                        <x-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">
+                            {{ __('Manajemen Peminjaman') }}
+                        </x-nav-link>
+                        {{-- Tambahkan link petugas lain di sini nanti --}}
+                    @endif
+
+                    {{-- Menu untuk Anggota --}}
                     @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_ANGGOTA))
                         {{-- <x-nav-link :href="route('member.borrowings.index')" :active="request()->routeIs('member.borrowings.*')">
                             {{ __('Peminjaman Saya') }}
-                        </x-nav-link> --}}
-                    @endif
-
-                     {{-- Tambahan untuk Petugas --}}
-                    @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_PETUGAS))
-                        {{-- <x-nav-link :href="route('officer.borrowings.index')" :active="request()->routeIs('officer.borrowings.*')">
-                            {{ __('Proses Peminjaman') }}
                         </x-nav-link> --}}
                     @endif
                 </div>
@@ -50,29 +52,12 @@
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
                             <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                            <div class="ms-1"><svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></div>
                         </button>
                     </x-slot>
-
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
+                        <x-dropdown-link :href="route('profile.edit')">{{ __('Profile') }}</x-dropdown-link>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">{{ __('Log Out') }}</x-dropdown-link></form>
                     </x-slot>
                 </x-dropdown>
                 @endauth
@@ -91,36 +76,24 @@
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">{{ __('Dashboard') }}</x-responsive-nav-link>
 
-            {{-- Tambahan untuk Admin (Responsive) --}}
+            {{-- Menu untuk Admin (Responsive) --}}
             @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_ADMIN))
-                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                    {{ __('Manajemen Kategori') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">
-                    {{ __('Manajemen Buku') }}
-                </x-responsive-nav-link>
-                {{-- BARU: Link Manajemen Anggota (Responsive) --}}
-                <x-responsive-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">
-                    {{ __('Manajemen Anggota') }}
-                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">{{ __('Manajemen Kategori') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.books.index')" :active="request()->routeIs('admin.books.*')">{{ __('Manajemen Buku') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.members.index')" :active="request()->routeIs('admin.members.*')">{{ __('Manajemen Anggota') }}</x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">{{ __('Manajemen Peminjaman') }}</x-responsive-nav-link>
             @endif
 
-            {{-- Tambahan untuk Anggota (Responsive) --}}
-            @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_ANGGOTA))
-                {{-- <x-responsive-nav-link :href="route('member.borrowings.index')" :active="request()->routeIs('member.borrowings.*')">
-                    {{ __('Peminjaman Saya') }}
-                </x-responsive-nav-link> --}}
-            @endif
-
-            {{-- Tambahan untuk Petugas (Responsive) --}}
+            {{-- Menu untuk Petugas (Responsive) --}}
             @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_PETUGAS))
-                {{-- <x-responsive-nav-link :href="route('officer.borrowings.index')" :active="request()->routeIs('officer.borrowings.*')">
-                    {{ __('Proses Peminjaman') }}
-                </x-responsive-nav-link> --}}
+                <x-responsive-nav-link :href="route('admin.borrowings.index')" :active="request()->routeIs('admin.borrowings.*')">{{ __('Manajemen Peminjaman') }}</x-responsive-nav-link>
+            @endif
+
+            {{-- Menu untuk Anggota (Responsive) --}}
+            @if(Auth::check() && Auth::user()->hasRole(\App\Models\User::ROLE_ANGGOTA))
+                {{-- <x-responsive-nav-link :href="route('member.borrowings.index')" :active="request()->routeIs('member.borrowings.*')">{{ __('Peminjaman Saya') }}</x-responsive-nav-link> --}}
             @endif
         </div>
 
@@ -130,21 +103,9 @@
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
-
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
+                <x-responsive-nav-link :href="route('profile.edit')">{{ __('Profile') }}</x-responsive-nav-link>
+                <form method="POST" action="{{ route('logout') }}">@csrf<x-responsive-nav-link :href="route('logout')" onclick="event.preventDefault();this.closest('form').submit();">{{ __('Log Out') }}</x-responsive-nav-link></form>
             </div>
         @endauth
         </div>
